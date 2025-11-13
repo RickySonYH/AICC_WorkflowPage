@@ -1,0 +1,20 @@
+# [advice from AI] 디렉토리 이름에 한글/공백이 있어 명시적으로 프로젝트 이름을 지정합니다.
+name: aicc-scenario-builder
+
+services:
+  web:
+    build:
+      context: . # [advice from AI] 루트 디렉터리를 빌드 컨텍스트로 사용합니다.
+      dockerfile: Dockerfile
+    command: npm run dev -- --host 0.0.0.0 --port 5174 # [advice from AI] Vite 개발 서버를 5174 포트로 실행하여 충돌을 방지합니다.
+    ports:
+      - "5174:5174" # [advice from AI] 호스트와 컨테이너 간 새 포트 매핑을 설정합니다.
+    volumes:
+      - .:/app # [advice from AI] 코드 변경을 즉시 반영하기 위해 워킹 디렉터리를 마운트합니다.
+      - /app/node_modules # [advice from AI] 컨테이너 내 의존성 디렉터리를 호스트와 분리합니다.
+    environment:
+      HOST: 0.0.0.0 # [advice from AI] Vite가 모든 인터페이스에서 접근 가능하도록 설정합니다.
+      PORT: 5174 # [advice from AI] Vite가 환경 변수로도 새 포트를 인식하도록 지정합니다.
+    stdin_open: true
+    tty: true
+
