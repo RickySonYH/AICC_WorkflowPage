@@ -177,7 +177,10 @@ export function LibraryTab() {
               style={{ cursor: 'pointer' }}
             >
               <div className="workflow-header">
-                <div className="workflow-name">{wf.name}</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  {wf.logo && <span style={{ fontSize: '24px' }}>{wf.logo}</span>}
+                  <div className="workflow-name">{wf.name}</div>
+                </div>
                 <div className="workflow-id">{wf.id}</div>
               </div>
               <div className="workflow-tags">

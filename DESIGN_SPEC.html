@@ -1,0 +1,1547 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AICC 시나리오 빌더 - 디자인 스펙 문서</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+      line-height: 1.6;
+      color: #1f2937;
+      background: #f9fafb;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    h1 {
+      font-size: 36px;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 16px;
+      border-bottom: 4px solid #5a6bfa;
+      padding-bottom: 16px;
+    }
+
+    h2 {
+      font-size: 28px;
+      font-weight: 600;
+      color: #1f2937;
+      margin-top: 60px;
+      margin-bottom: 24px;
+      padding-left: 16px;
+      border-left: 6px solid #5a6bfa;
+    }
+
+    h3 {
+      font-size: 20px;
+      font-weight: 600;
+      color: #374151;
+      margin-top: 32px;
+      margin-bottom: 16px;
+    }
+
+    .subtitle {
+      font-size: 18px;
+      color: #6b7280;
+      margin-bottom: 40px;
+    }
+
+    .spec-section {
+      background: white;
+      border-radius: 16px;
+      padding: 32px;
+      margin-bottom: 32px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    /* 색상 팔레트 */
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .color-card {
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid #e5e7eb;
+      transition: transform 0.2s;
+    }
+
+    .color-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .color-preview {
+      height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .color-info {
+      padding: 12px;
+      background: #f9fafb;
+    }
+
+    .color-name {
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .color-value {
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      color: #6b7280;
+    }
+
+    /* 타이포그래피 */
+    .typo-example {
+      padding: 16px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .typo-preview {
+      flex: 1;
+    }
+
+    .typo-spec {
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      color: #6b7280;
+      text-align: right;
+    }
+
+    /* 버튼 */
+    .button-showcase {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .button {
+      padding: 10px 20px;
+      border: 1px solid #d5d9e3;
+      border-radius: 8px;
+      background: #fff;
+      color: #374151;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .button:hover {
+      background: #f3f4f6;
+      border-color: #9ca3af;
+    }
+
+    .button-primary {
+      background: #5a6bfa;
+      color: white;
+      border-color: #5a6bfa;
+    }
+
+    .button-primary:hover {
+      background: #4c5fd5;
+      box-shadow: 0 4px 12px rgba(90,107,250,0.3);
+    }
+
+    .button-secondary {
+      background: #fff;
+      color: #5a6bfa;
+      border-color: #5a6bfa;
+    }
+
+    .button-secondary:hover {
+      background: #eef1ff;
+    }
+
+    .icon-button {
+      width: 36px;
+      height: 36px;
+      padding: 0;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    /* 카드 */
+    .card-showcase {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .workflow-card {
+      background: white;
+      border: 1px solid #d0d0d0;
+      border-radius: 12px;
+      padding: 20px;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    .workflow-card:hover {
+      border-color: #5a6bfa;
+      box-shadow: 0 4px 12px rgba(90,107,250,0.15);
+      transform: translateY(-2px);
+    }
+
+    .workflow-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 8px;
+    }
+
+    .workflow-id {
+      font-size: 12px;
+      color: #9ca3af;
+      margin-bottom: 12px;
+    }
+
+    .workflow-tags {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .tag {
+      padding: 4px 12px;
+      background: #f3f4f6;
+      border: 1px solid #e5e7eb;
+      border-radius: 999px;
+      font-size: 12px;
+      color: #4b5563;
+    }
+
+    .workflow-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: #6b7280;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 24px;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 36px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .stat-label {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    /* 입력 요소 */
+    .input-showcase {
+      display: grid;
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .form-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: #374151;
+    }
+
+    .form-input {
+      padding: 10px 14px;
+      border: 1px solid #d5d9e3;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: #5a6bfa;
+      box-shadow: 0 0 0 3px rgba(90,107,250,0.1);
+    }
+
+    select.form-input {
+      background: white;
+      cursor: pointer;
+    }
+
+    textarea.form-input {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    /* 모달 */
+    .modal-example {
+      max-width: 600px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+      overflow: hidden;
+      margin: 20px auto;
+    }
+
+    .modal-header {
+      padding: 24px 32px;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #1f2937;
+    }
+
+    .modal-body {
+      padding: 32px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .modal-footer {
+      padding: 20px 32px;
+      border-top: 1px solid #e5e7eb;
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      background: #f9fafb;
+    }
+
+    /* 탭 */
+    .tab-nav {
+      display: flex;
+      gap: 8px;
+      border-bottom: 2px solid #e5e7eb;
+      margin-bottom: 24px;
+    }
+
+    .tab-button {
+      padding: 12px 24px;
+      border: none;
+      background: none;
+      color: #6b7280;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s;
+      position: relative;
+      top: 2px;
+    }
+
+    .tab-button:hover {
+      color: #5a6bfa;
+    }
+
+    .tab-button.active {
+      color: #5a6bfa;
+      border-bottom-color: #5a6bfa;
+      font-weight: 600;
+    }
+
+    /* 간격 시스템 */
+    .spacing-example {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 16px;
+      padding: 16px;
+      background: #f9fafb;
+      border-radius: 8px;
+    }
+
+    .spacing-box {
+      background: #5a6bfa;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .spacing-label {
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      color: #6b7280;
+    }
+
+    /* 쉐도우 */
+    .shadow-showcase {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 24px;
+      margin-top: 20px;
+    }
+
+    .shadow-box {
+      height: 120px;
+      background: white;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      color: #6b7280;
+    }
+
+    .shadow-sm {
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+
+    .shadow-md {
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .shadow-lg {
+      box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+    }
+
+    .shadow-xl {
+      box-shadow: 0 20px 25px rgba(0,0,0,0.15);
+    }
+
+    /* 레이아웃 예시 */
+    .layout-preview {
+      background: #f3f4f6;
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 20px;
+    }
+
+    .layout-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .layout-3col {
+      grid-template-columns: 320px 1fr 340px;
+    }
+
+    .layout-2col {
+      grid-template-columns: 280px 1fr;
+    }
+
+    .layout-panel {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      min-height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #9ca3af;
+      font-weight: 600;
+      border: 2px dashed #d1d5db;
+    }
+
+    .code-block {
+      background: #1f2937;
+      color: #e5e7eb;
+      padding: 20px;
+      border-radius: 8px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      overflow-x: auto;
+      margin-top: 12px;
+    }
+
+    .code-line {
+      margin-bottom: 4px;
+    }
+
+    .code-comment {
+      color: #9ca3af;
+    }
+
+    /* 상태 뱃지 */
+    .badge-showcase {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+
+    .badge {
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .badge-success {
+      background: #10b981;
+      color: white;
+    }
+
+    .badge-warning {
+      background: #f59e0b;
+      color: white;
+    }
+
+    .badge-error {
+      background: #ef4444;
+      color: white;
+    }
+
+    .badge-info {
+      background: #3b82f6;
+      color: white;
+    }
+
+    .badge-neutral {
+      background: #f3f4f6;
+      color: #4b5563;
+      border: 1px solid #e5e7eb;
+    }
+
+    /* TOC */
+    .toc {
+      background: #eef1ff;
+      border: 2px solid #5a6bfa;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 40px;
+    }
+
+    .toc h3 {
+      margin-top: 0;
+      color: #5a6bfa;
+    }
+
+    .toc ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .toc li {
+      margin-bottom: 8px;
+    }
+
+    .toc a {
+      color: #5a6bfa;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .toc a:hover {
+      text-decoration: underline;
+      padding-left: 8px;
+    }
+
+    /* 노트 박스 */
+    .note {
+      background: #fffbeb;
+      border-left: 4px solid #f59e0b;
+      padding: 16px 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+
+    .note-title {
+      font-weight: 600;
+      color: #92400e;
+      margin-bottom: 8px;
+    }
+
+    .note-content {
+      color: #78350f;
+      font-size: 14px;
+    }
+
+    /* 미니 플로우 에디터 노드 */
+    .mini-node {
+      position: absolute;
+      width: 220px;
+      background: white;
+      border: 2px solid #e5e7eb;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      cursor: grab;
+      transition: all 0.2s;
+      user-select: none;
+    }
+
+    .mini-node:hover {
+      box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+      transform: translateY(-2px);
+    }
+
+    .mini-node.dragging {
+      cursor: grabbing;
+      opacity: 0.8;
+      z-index: 100;
+    }
+
+    .mini-node-header {
+      padding: 10px 12px;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 8px 8px 0 0;
+    }
+
+    .mini-node-badge {
+      padding: 3px 8px;
+      border-radius: 5px;
+      font-size: 10px;
+      font-weight: 600;
+      color: white;
+    }
+
+    .mini-node-label {
+      flex: 1;
+      font-weight: 600;
+      font-size: 13px;
+      color: #1f2937;
+    }
+
+    .mini-node-body {
+      padding: 12px;
+      font-size: 12px;
+      color: #6b7280;
+    }
+
+    .mini-connector {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: 2px solid white;
+      cursor: crosshair;
+      z-index: 10;
+      transition: transform 0.2s;
+    }
+
+    .mini-connector.input {
+      left: -6px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #3b82f6;
+    }
+
+    .mini-connector.output {
+      right: -6px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #10b981;
+    }
+
+    .mini-connector:hover {
+      transform: translateY(-50%) scale(1.4);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>AICC 시나리오 빌더 - 디자인 스펙 문서</h1>
+    <p class="subtitle">React + TypeScript + Vite 기반 UI/UX 디자인 시스템</p>
+
+    <!-- 목차 -->
+    <div class="toc">
+      <h3>📑 목차</h3>
+      <ul>
+        <li><a href="#colors">1. 컬러 시스템</a></li>
+        <li><a href="#typography">2. 타이포그래피</a></li>
+        <li><a href="#spacing">3. 간격 시스템</a></li>
+        <li><a href="#shadows">4. 쉐도우</a></li>
+        <li><a href="#buttons">5. 버튼</a></li>
+        <li><a href="#cards">6. 카드</a></li>
+        <li><a href="#inputs">7. 입력 요소</a></li>
+        <li><a href="#badges">8. 뱃지 & 태그</a></li>
+        <li><a href="#modals">9. 모달</a></li>
+        <li><a href="#tabs">10. 탭</a></li>
+        <li><a href="#layouts">11. 레이아웃</a></li>
+        <li><a href="#pages">12. 페이지 구조</a></li>
+        <li><a href="#flow-editor">13. 플로우 에디터 (인터랙티브 데모)</a></li>
+      </ul>
+    </div>
+
+    <!-- 1. 컬러 시스템 -->
+    <h2 id="colors">1. 컬러 시스템</h2>
+    <div class="spec-section">
+      <h3>Primary Colors (주 색상)</h3>
+      <div class="color-grid">
+        <div class="color-card">
+          <div class="color-preview" style="background: #5a6bfa;">Primary</div>
+          <div class="color-info">
+            <div class="color-name">Primary Blue</div>
+            <div class="color-value">#5a6bfa</div>
+          </div>
+        </div>
+        <div class="color-card">
+          <div class="color-preview" style="background: #4c5fd5;">Primary Dark</div>
+          <div class="color-info">
+            <div class="color-name">Primary Blue Dark</div>
+            <div class="color-value">#4c5fd5</div>
+          </div>
+        </div>
+        <div class="color-card">
+          <div class="color-preview" style="background: #eef1ff; color: #3944bc;">Primary Light</div>
+          <div class="color-info">
+            <div class="color-name">Primary Blue Light</div>
+            <div class="color-value">#eef1ff</div>
+          </div>
+        </div>
+      </div>
+
+      <h3>Status Colors (상태 색상)</h3>
+      <div class="color-grid">
+        <div class="color-card">
+          <div class="color-preview" style="background: #10b981;">Success</div>
+          <div class="color-info">
+            <div class="color-name">Success Green</div>
+            <div class="color-value">#10b981</div>
+          </div>
+        </div>
+        <div class="color-card">
+          <div class="color-preview" style="background: #f59e0b;">Warning</div>
+          <div class="color-info">
+            <div class="color-name">Warning Amber</div>
+            <div class="color-value">#f59e0b</div>
+          </div>
+        </div>
+        <div class="color-card">
+          <div class="color-preview" style="background: #ef4444;">Error</div>
+          <div class="color-info">
+            <div class="color-name">Error Red</div>
+            <div class="color-value">#ef4444</div>
+          </div>
+        </div>
+        <div class="color-card">
+          <div class="color-preview" style="background: #3b82f6;">Info</div>
+          <div class="color-info">
+            <div class="color-name">Info Blue</div>
+            <div class="color-value">#3b82f6</div>
+          </div>
+        </div>
+      </div>
+
+      <h3>Neutral Colors (중립 색상)</h3>
+      <div class="color-grid">
+        <div class="color-card">
+          <div class="color-preview" style="background: #111827;">Gray 900</div>
+          <div class="color-info">
+            <div class="color-name">Text Primary</div>
+            <div class="color-value">#111827</div>
+          </div>
+        </div>
+        <div class="color-card">
+          <div class="color-preview" style="background: #1f2937;">Gray 800</div>
+          <div class="color-info">
+            <div class="color-name">Text Secondary</div>
+            <div class="color-value">#1f2937</div>
+          </div>
+        </div>
+        <div class="color-card">
+          <div class="color-preview" style="background: #6b7280;">Gray 500</div>
+          <div class="color-info">
+            <div class="color-name">Text Muted</div>
+            <div class="color-value">#6b7280</div>
+          </div>
+        </div>
+        <div class="color-card">
+          <div class="color-preview" style="background: #9ca3af;">Gray 400</div>
+          <div class="color-info">
+            <div class="color-name">Text Disabled</div>
+            <div class="color-value">#9ca3af</div>
+          </div>
+        </div>
+        <div class="color-card">
+          <div class="color-preview" style="background: #e5e7eb; color: #6b7280;">Gray 200</div>
+          <div class="color-info">
+            <div class="color-name">Border</div>
+            <div class="color-value">#e5e7eb</div>
+          </div>
+        </div>
+        <div class="color-card">
+          <div class="color-preview" style="background: #f3f4f6; color: #6b7280;">Gray 100</div>
+          <div class="color-info">
+            <div class="color-name">Background Light</div>
+            <div class="color-value">#f3f4f6</div>
+          </div>
+        </div>
+        <div class="color-card">
+          <div class="color-preview" style="background: #f9fafb; color: #6b7280;">Gray 50</div>
+          <div class="color-info">
+            <div class="color-name">Background</div>
+            <div class="color-value">#f9fafb</div>
+          </div>
+        </div>
+        <div class="color-card">
+          <div class="color-preview" style="background: #ffffff; color: #6b7280; border: 1px solid #e5e7eb;">White</div>
+          <div class="color-info">
+            <div class="color-name">Background White</div>
+            <div class="color-value">#ffffff</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. 타이포그래피 -->
+    <h2 id="typography">2. 타이포그래피</h2>
+    <div class="spec-section">
+      <h3>Font Family</h3>
+      <div class="code-block">
+        <div class="code-line">font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;</div>
+      </div>
+
+      <h3>Text Styles</h3>
+      <div class="typo-example">
+        <div class="typo-preview" style="font-size: 36px; font-weight: 700;">Page Title</div>
+        <div class="typo-spec">36px / 700</div>
+      </div>
+      <div class="typo-example">
+        <div class="typo-preview" style="font-size: 28px; font-weight: 600;">Section Title</div>
+        <div class="typo-spec">28px / 600</div>
+      </div>
+      <div class="typo-example">
+        <div class="typo-preview" style="font-size: 20px; font-weight: 600;">Subsection Title</div>
+        <div class="typo-spec">20px / 600</div>
+      </div>
+      <div class="typo-example">
+        <div class="typo-preview" style="font-size: 18px; font-weight: 600;">Panel Title</div>
+        <div class="typo-spec">18px / 600</div>
+      </div>
+      <div class="typo-example">
+        <div class="typo-preview" style="font-size: 16px; font-weight: 600;">Card Title</div>
+        <div class="typo-spec">16px / 600</div>
+      </div>
+      <div class="typo-example">
+        <div class="typo-preview" style="font-size: 14px; font-weight: 500;">Body Text</div>
+        <div class="typo-spec">14px / 500</div>
+      </div>
+      <div class="typo-example">
+        <div class="typo-preview" style="font-size: 13px; font-weight: 400;">Caption</div>
+        <div class="typo-spec">13px / 400</div>
+      </div>
+      <div class="typo-example">
+        <div class="typo-preview" style="font-size: 12px; font-weight: 400;">Small Text</div>
+        <div class="typo-spec">12px / 400</div>
+      </div>
+    </div>
+
+    <!-- 3. 간격 시스템 -->
+    <h2 id="spacing">3. 간격 시스템</h2>
+    <div class="spec-section">
+      <h3>Spacing Scale</h3>
+      <div class="spacing-example">
+        <div class="spacing-box" style="padding: 4px 8px;">4px</div>
+        <div class="spacing-label">XS - 4px</div>
+      </div>
+      <div class="spacing-example">
+        <div class="spacing-box" style="padding: 8px 16px;">8px</div>
+        <div class="spacing-label">SM - 8px</div>
+      </div>
+      <div class="spacing-example">
+        <div class="spacing-box" style="padding: 12px 24px;">12px</div>
+        <div class="spacing-label">MD - 12px</div>
+      </div>
+      <div class="spacing-example">
+        <div class="spacing-box" style="padding: 16px 32px;">16px</div>
+        <div class="spacing-label">LG - 16px</div>
+      </div>
+      <div class="spacing-example">
+        <div class="spacing-box" style="padding: 20px 40px;">20px</div>
+        <div class="spacing-label">XL - 20px</div>
+      </div>
+      <div class="spacing-example">
+        <div class="spacing-box" style="padding: 24px 48px;">24px</div>
+        <div class="spacing-label">2XL - 24px</div>
+      </div>
+      <div class="spacing-example">
+        <div class="spacing-box" style="padding: 32px 64px;">32px</div>
+        <div class="spacing-label">3XL - 32px</div>
+      </div>
+
+      <h3>Border Radius</h3>
+      <div class="spacing-example">
+        <div class="spacing-box" style="border-radius: 4px;">4px</div>
+        <div class="spacing-label">SM - 4px</div>
+      </div>
+      <div class="spacing-example">
+        <div class="spacing-box" style="border-radius: 8px;">8px</div>
+        <div class="spacing-label">MD - 8px</div>
+      </div>
+      <div class="spacing-example">
+        <div class="spacing-box" style="border-radius: 12px;">12px</div>
+        <div class="spacing-label">LG - 12px</div>
+      </div>
+      <div class="spacing-example">
+        <div class="spacing-box" style="border-radius: 16px;">16px</div>
+        <div class="spacing-label">XL - 16px</div>
+      </div>
+      <div class="spacing-example">
+        <div class="spacing-box" style="border-radius: 999px;">999px</div>
+        <div class="spacing-label">Full - 999px (Pills)</div>
+      </div>
+    </div>
+
+    <!-- 4. 쉐도우 -->
+    <h2 id="shadows">4. 쉐도우</h2>
+    <div class="spec-section">
+      <div class="shadow-showcase">
+        <div class="shadow-box shadow-sm">
+          Shadow SM<br>
+          <span style="font-size: 11px; font-weight: 400;">0 1px 2px rgba(0,0,0,0.05)</span>
+        </div>
+        <div class="shadow-box shadow-md">
+          Shadow MD<br>
+          <span style="font-size: 11px; font-weight: 400;">0 4px 6px rgba(0,0,0,0.1)</span>
+        </div>
+        <div class="shadow-box shadow-lg">
+          Shadow LG<br>
+          <span style="font-size: 11px; font-weight: 400;">0 10px 15px rgba(0,0,0,0.1)</span>
+        </div>
+        <div class="shadow-box shadow-xl">
+          Shadow XL<br>
+          <span style="font-size: 11px; font-weight: 400;">0 20px 25px rgba(0,0,0,0.15)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. 버튼 -->
+    <h2 id="buttons">5. 버튼</h2>
+    <div class="spec-section">
+      <h3>Button Variants</h3>
+      <div class="button-showcase">
+        <button class="button button-primary">Primary Button</button>
+        <button class="button button-secondary">Secondary Button</button>
+        <button class="button">Default Button</button>
+        <button class="button icon-button">✕</button>
+        <button class="button icon-button">⚙</button>
+        <button class="button icon-button">+</button>
+      </div>
+
+      <h3>Button States</h3>
+      <div class="note">
+        <div class="note-title">💡 인터랙션 안내</div>
+        <div class="note-content">
+          위의 버튼들에 마우스를 올리면 hover 효과를 확인할 수 있습니다.
+        </div>
+      </div>
+
+      <h3>CSS Code</h3>
+      <div class="code-block">
+        <div class="code-line"><span class="code-comment">/* Primary Button */</span></div>
+        <div class="code-line">.button-primary {</div>
+        <div class="code-line">  background: #5a6bfa;</div>
+        <div class="code-line">  color: white;</div>
+        <div class="code-line">  border: 1px solid #5a6bfa;</div>
+        <div class="code-line">  padding: 10px 20px;</div>
+        <div class="code-line">  border-radius: 8px;</div>
+        <div class="code-line">  font-size: 14px;</div>
+        <div class="code-line">  font-weight: 500;</div>
+        <div class="code-line">  cursor: pointer;</div>
+        <div class="code-line">  transition: all 0.2s;</div>
+        <div class="code-line">}</div>
+        <div class="code-line"></div>
+        <div class="code-line">.button-primary:hover {</div>
+        <div class="code-line">  background: #4c5fd5;</div>
+        <div class="code-line">  box-shadow: 0 4px 12px rgba(90,107,250,0.3);</div>
+        <div class="code-line">}</div>
+      </div>
+    </div>
+
+    <!-- 6. 카드 -->
+    <h2 id="cards">6. 카드</h2>
+    <div class="spec-section">
+      <h3>Workflow Card</h3>
+      <div class="card-showcase">
+        <div class="workflow-card">
+          <div class="workflow-name">초기 인사</div>
+          <div class="workflow-id">wf-common-start-001</div>
+          <div class="workflow-tags">
+            <span class="tag">공통</span>
+            <span class="tag">시작</span>
+            <span class="tag">활성화</span>
+          </div>
+          <div class="workflow-meta">
+            <div>생성: 2025.10.15</div>
+            <div>사용: 1,234회</div>
+          </div>
+        </div>
+
+        <div class="workflow-card">
+          <div class="workflow-name">주문 조회</div>
+          <div class="workflow-id">wf-ecommerce-order-001</div>
+          <div class="workflow-tags">
+            <span class="tag">이커머스</span>
+            <span class="tag">업무 처리</span>
+            <span class="tag">활성화</span>
+          </div>
+          <div class="workflow-meta">
+            <div>생성: 2025.09.20</div>
+            <div>사용: 2,456회</div>
+          </div>
+        </div>
+      </div>
+
+      <h3>Stat Card</h3>
+      <div class="card-showcase">
+        <div class="stat-card">
+          <div class="stat-number">36</div>
+          <div class="stat-label">전체 워크플로우</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">5</div>
+          <div class="stat-label">전체 시나리오</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. 입력 요소 -->
+    <h2 id="inputs">7. 입력 요소</h2>
+    <div class="spec-section">
+      <div class="input-showcase">
+        <div class="form-group">
+          <label class="form-label">텍스트 입력</label>
+          <input type="text" class="form-input" placeholder="텍스트를 입력하세요">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">셀렉트 박스</label>
+          <select class="form-input">
+            <option>옵션 1</option>
+            <option>옵션 2</option>
+            <option>옵션 3</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">텍스트 영역</label>
+          <textarea class="form-input" placeholder="여러 줄 텍스트를 입력하세요"></textarea>
+        </div>
+      </div>
+
+      <div class="note" style="margin-top: 20px;">
+        <div class="note-title">💡 인터랙션 안내</div>
+        <div class="note-content">
+          입력 필드를 클릭하면 포커스 효과(파란색 테두리)를 확인할 수 있습니다.
+        </div>
+      </div>
+    </div>
+
+    <!-- 8. 뱃지 & 태그 -->
+    <h2 id="badges">8. 뱃지 & 태그</h2>
+    <div class="spec-section">
+      <h3>Status Badges</h3>
+      <div class="badge-showcase">
+        <span class="badge badge-success">활성화</span>
+        <span class="badge badge-warning">초안</span>
+        <span class="badge badge-error">비활성화</span>
+        <span class="badge badge-info">진행중</span>
+        <span class="badge badge-neutral">대기</span>
+      </div>
+
+      <h3>Category Tags</h3>
+      <div class="badge-showcase">
+        <span class="tag">공통</span>
+        <span class="tag">이커머스</span>
+        <span class="tag">금융</span>
+        <span class="tag">고객관리</span>
+        <span class="tag">시작</span>
+        <span class="tag">인증</span>
+        <span class="tag">업무 처리</span>
+        <span class="tag">종료</span>
+      </div>
+    </div>
+
+    <!-- 9. 모달 -->
+    <h2 id="modals">9. 모달</h2>
+    <div class="spec-section">
+      <h3>Modal Structure</h3>
+      <div class="modal-example">
+        <div class="modal-header">
+          <h3 class="modal-title">모달 제목</h3>
+          <button class="icon-button">✕</button>
+        </div>
+        <div class="modal-body">
+          <p>모달 본문 내용이 여기에 표시됩니다.</p>
+          <p>여러 줄의 텍스트나 폼 요소를 포함할 수 있습니다.</p>
+        </div>
+        <div class="modal-footer">
+          <button class="button">취소</button>
+          <button class="button button-primary">확인</button>
+        </div>
+      </div>
+
+      <div class="code-block">
+        <div class="code-line"><span class="code-comment">/* Modal 스타일 */</span></div>
+        <div class="code-line">.modal-container {</div>
+        <div class="code-line">  max-width: 600px;</div>
+        <div class="code-line">  background: white;</div>
+        <div class="code-line">  border-radius: 16px;</div>
+        <div class="code-line">  box-shadow: 0 20px 40px rgba(0,0,0,0.15);</div>
+        <div class="code-line">}</div>
+      </div>
+    </div>
+
+    <!-- 10. 탭 -->
+    <h2 id="tabs">10. 탭</h2>
+    <div class="spec-section">
+      <h3>Tab Navigation</h3>
+      <div class="tab-nav">
+        <button class="tab-button active">시나리오 대시보드</button>
+        <button class="tab-button">워크플로우 라이브러리</button>
+        <button class="tab-button">시나리오 구성</button>
+      </div>
+
+      <div class="note">
+        <div class="note-title">💡 인터랙션 안내</div>
+        <div class="note-content">
+          탭 버튼에 마우스를 올리거나 클릭하면 상태 변화를 확인할 수 있습니다.
+        </div>
+      </div>
+    </div>
+
+    <!-- 11. 레이아웃 -->
+    <h2 id="layouts">11. 레이아웃</h2>
+    <div class="spec-section">
+      <h3>3-Column Layout (시나리오 구성 탭)</h3>
+      <div class="layout-preview">
+        <div class="layout-grid layout-3col">
+          <div class="layout-panel">왼쪽 패널<br>320px</div>
+          <div class="layout-panel">중앙 영역<br>1fr (flexible)</div>
+          <div class="layout-panel">오른쪽 패널<br>340px</div>
+        </div>
+      </div>
+      <div class="code-block">
+        <div class="code-line">.builder-layout {</div>
+        <div class="code-line">  display: grid;</div>
+        <div class="code-line">  grid-template-columns: 320px 1fr 340px;</div>
+        <div class="code-line">  gap: 24px;</div>
+        <div class="code-line">  height: calc(100vh - 200px);</div>
+        <div class="code-line">}</div>
+      </div>
+
+      <h3>2-Column Layout (워크플로우 라이브러리 탭)</h3>
+      <div class="layout-preview">
+        <div class="layout-grid layout-2col">
+          <div class="layout-panel">사이드바<br>280px</div>
+          <div class="layout-panel">메인 콘텐츠<br>1fr (flexible)</div>
+        </div>
+      </div>
+      <div class="code-block">
+        <div class="code-line">.library-layout {</div>
+        <div class="code-line">  display: grid;</div>
+        <div class="code-line">  grid-template-columns: 280px 1fr;</div>
+        <div class="code-line">  gap: 24px;</div>
+        <div class="code-line">  height: calc(100vh - 200px);</div>
+        <div class="code-line">}</div>
+      </div>
+    </div>
+
+    <!-- 12. 페이지 구조 -->
+    <h2 id="pages">12. 페이지 구조</h2>
+    <div class="spec-section">
+      <h3>1. 시나리오 대시보드</h3>
+      <div class="code-block">
+        <div class="code-line"><span class="code-comment">/* 페이지 구조 */</span></div>
+        <div class="code-line">📊 시나리오 대시보드</div>
+        <div class="code-line">├── 워크플로우 개요 (KPI 카드 3개)</div>
+        <div class="code-line">│   ├── 전체 워크플로우: 36</div>
+        <div class="code-line">│   ├── 카테고리: 9</div>
+        <div class="code-line">│   └── 활성화됨: 32</div>
+        <div class="code-line">├── 시나리오 개요 (KPI 카드 3개)</div>
+        <div class="code-line">│   ├── 전체 시나리오: 5</div>
+        <div class="code-line">│   ├── 운영 중인 시나리오: 4</div>
+        <div class="code-line">│   └── 초안: 1</div>
+        <div class="code-line">└── 카테고리 관리 (카테고리 리스트)</div>
+        <div class="code-line">    └── + 새 카테고리 추가 버튼</div>
+      </div>
+
+      <h3>2. 워크플로우 라이브러리</h3>
+      <div class="code-block">
+        <div class="code-line"><span class="code-comment">/* 페이지 구조 */</span></div>
+        <div class="code-line">📚 워크플로우 라이브러리</div>
+        <div class="code-line">├── 왼쪽: 카테고리 트리 (280px)</div>
+        <div class="code-line">│   ├── 전체</div>
+        <div class="code-line">│   ├── 공통 (확장 가능)</div>
+        <div class="code-line">│   │   ├── 시작</div>
+        <div class="code-line">│   │   ├── 인증</div>
+        <div class="code-line">│   │   └── 종료</div>
+        <div class="code-line">│   ├── 이커머스 (확장 가능)</div>
+        <div class="code-line">│   └── 금융 (확장 가능)</div>
+        <div class="code-line">└── 오른쪽: 워크플로우 그리드 (1fr)</div>
+        <div class="code-line">    ├── 필터 툴바 (고객 여정, 상태, 검색)</div>
+        <div class="code-line">    ├── + 새 워크플로우 버튼</div>
+        <div class="code-line">    └── 워크플로우 카드 그리드</div>
+      </div>
+
+      <h3>3. 시나리오 구성</h3>
+      <div class="code-block">
+        <div class="code-line"><span class="code-comment">/* 페이지 구조 */</span></div>
+        <div class="code-line">🔧 시나리오 구성</div>
+        <div class="code-line">├── 왼쪽: 템플릿 추천 (320px)</div>
+        <div class="code-line">│   ├── 템플릿 목록</div>
+        <div class="code-line">│   └── + 새 시나리오 생성 버튼</div>
+        <div class="code-line">├── 중앙: 시나리오 리스트 (1fr)</div>
+        <div class="code-line">│   ├── 필터 (카테고리, 상태)</div>
+        <div class="code-line">│   ├── + 새 시나리오 버튼</div>
+        <div class="code-line">│   └── 시나리오 카드 목록</div>
+        <div class="code-line">└── 오른쪽: 시나리오 상세 정보 (340px)</div>
+        <div class="code-line">    ├── 기본 정보</div>
+        <div class="code-line">    ├── 📞 전화번호 매칭</div>
+        <div class="code-line">    ├── 🏢 테넌트 정보</div>
+        <div class="code-line">    ├── 🔗 포함된 워크플로우</div>
+        <div class="code-line">    └── 액션 버튼들</div>
+      </div>
+    </div>
+
+    <!-- 13. 플로우 에디터 -->
+    <h2 id="flow-editor">13. 플로우 에디터 (인터랙티브 데모)</h2>
+    <div class="spec-section">
+      <div class="note" style="background: #eef1ff; border-left-color: #5a6bfa;">
+        <div class="note-title" style="color: #3944bc;">🎨 인터랙티브 데모</div>
+        <div class="note-content" style="color: #3944bc;">
+          아래의 플로우 에디터는 실제로 드래그앤드롭과 노드 연결이 가능한 인터랙티브 데모입니다.
+          직접 조작해보세요!
+        </div>
+      </div>
+
+      <h3>플로우 에디터 타입</h3>
+      <p style="margin-bottom: 20px;">
+        AICC 시나리오 빌더는 2가지 타입의 플로우 에디터를 제공합니다:
+      </p>
+      <ul style="margin-left: 20px; margin-bottom: 32px;">
+        <li style="margin-bottom: 12px;">
+          <strong>워크플로우 빌더:</strong> 개별 워크플로우 블록 내부의 노드를 편집합니다. (AI 답변, 상태 변경 등)
+        </li>
+        <li style="margin-bottom: 12px;">
+          <strong>시나리오 플로우 에디터:</strong> 여러 워크플로우를 조합하여 전체 시나리오를 구성합니다.
+        </li>
+      </ul>
+
+      <!-- 플로우 에디터 데모 영역 -->
+      <div id="flowEditorDemo" style="
+        border: 3px solid #5a6bfa;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 8px 24px rgba(90,107,250,0.2);
+        margin-top: 24px;
+      ">
+        <div style="
+          background: white;
+          padding: 16px 24px;
+          border-bottom: 2px solid #e5e7eb;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        ">
+          <h4 style="margin: 0; font-size: 16px;">플로우 에디터 미니 데모</h4>
+          <div>
+            <button class="button button-secondary" onclick="openFullDemo()" style="font-size: 13px;">
+              전체 데모 열기 →
+            </button>
+          </div>
+        </div>
+        
+        <div style="
+          background: #fafafa;
+          padding: 40px;
+          min-height: 500px;
+          position: relative;
+          background-image: 
+            linear-gradient(#e5e7eb 1px, transparent 1px),
+            linear-gradient(90deg, #e5e7eb 1px, transparent 1px);
+          background-size: 20px 20px;
+        ">
+          <svg id="miniSvg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></svg>
+          
+          <div id="miniCanvas" style="position: relative;">
+            <!-- 미니 노드들 -->
+            <div class="mini-node" id="mini-node-1" style="left: 100px; top: 150px;" data-type="start">
+              <div class="mini-node-header" style="background: #10b98115;">
+                <span class="mini-node-badge" style="background: #10b981;">START</span>
+                <span class="mini-node-label">시작</span>
+              </div>
+              <div class="mini-node-body">워크플로우 시작점</div>
+              <div class="mini-connector output" data-node="mini-node-1"></div>
+            </div>
+
+            <div class="mini-node" id="mini-node-2" style="left: 400px; top: 150px;" data-type="ai">
+              <div class="mini-node-header" style="background: #3b82f615;">
+                <span class="mini-node-badge" style="background: #3b82f6;">AI 답변</span>
+                <span class="mini-node-label">고객 인사</span>
+              </div>
+              <div class="mini-node-body">안녕하세요. 무엇을 도와드릴까요?</div>
+              <div class="mini-connector input" data-node="mini-node-2"></div>
+              <div class="mini-connector output" data-node="mini-node-2"></div>
+            </div>
+
+            <div class="mini-node" id="mini-node-3" style="left: 700px; top: 150px;" data-type="end">
+              <div class="mini-node-header" style="background: #ef444415;">
+                <span class="mini-node-badge" style="background: #ef4444;">END</span>
+                <span class="mini-node-label">종료</span>
+              </div>
+              <div class="mini-node-body">워크플로우 종료</div>
+              <div class="mini-connector input" data-node="mini-node-3"></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="
+          background: #f9fafb;
+          padding: 16px 24px;
+          border-top: 1px solid #e5e7eb;
+          display: flex;
+          justify-content: space-between;
+          font-size: 13px;
+          color: #6b7280;
+        ">
+          <div>
+            <span>💡 노드를 드래그하여 이동할 수 있습니다</span>
+          </div>
+          <div>
+            <span id="miniStatus">노드: 3개 | 연결: 2개</span>
+          </div>
+        </div>
+      </div>
+
+      <h3 style="margin-top: 40px;">주요 기능</h3>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 20px;">
+        <div style="padding: 20px; background: #f9fafb; border-radius: 12px; border: 1px solid #e5e7eb;">
+          <div style="font-size: 32px; margin-bottom: 12px;">🖱️</div>
+          <div style="font-weight: 600; margin-bottom: 8px;">드래그 앤 드롭</div>
+          <div style="font-size: 13px; color: #6b7280;">
+            노드를 자유롭게 이동하고 배치할 수 있습니다
+          </div>
+        </div>
+        <div style="padding: 20px; background: #f9fafb; border-radius: 12px; border: 1px solid #e5e7eb;">
+          <div style="font-size: 32px; margin-bottom: 12px;">🔗</div>
+          <div style="font-weight: 600; margin-bottom: 8px;">노드 연결</div>
+          <div style="font-size: 13px; color: #6b7280;">
+            연결점을 클릭하여 노드 간 연결을 만들 수 있습니다
+          </div>
+        </div>
+        <div style="padding: 20px; background: #f9fafb; border-radius: 12px; border: 1px solid #e5e7eb;">
+          <div style="font-size: 32px; margin-bottom: 12px;">➕</div>
+          <div style="font-weight: 600; margin-bottom: 8px;">노드 추가/삭제</div>
+          <div style="font-size: 13px; color: #6b7280;">
+            팔레트에서 새 노드를 추가하거나 삭제할 수 있습니다
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 추가 정보 -->
+    <h2>📌 추가 정보</h2>
+    <div class="spec-section">
+      <h3>프로젝트 정보</h3>
+      <div class="code-block">
+        <div class="code-line"><span class="code-comment">/* 기술 스택 */</span></div>
+        <div class="code-line">- 프레임워크: React 18 + TypeScript</div>
+        <div class="code-line">- 빌드 도구: Vite</div>
+        <div class="code-line">- 상태 관리: Zustand</div>
+        <div class="code-line">- 스타일링: CSS (Vanilla CSS)</div>
+        <div class="code-line">- 컨테이너: Docker + Docker Compose</div>
+        <div class="code-line"></div>
+        <div class="code-line"><span class="code-comment">/* 저장소 */</span></div>
+        <div class="code-line">GitHub: https://github.com/RickySonYH/AICC_WorkflowPage</div>
+      </div>
+
+      <h3>반응형 디자인</h3>
+      <ul style="margin-left: 20px; margin-top: 12px;">
+        <li style="margin-bottom: 8px;">최소 화면 너비: 1280px</li>
+        <li style="margin-bottom: 8px;">권장 화면 너비: 1440px 이상</li>
+        <li style="margin-bottom: 8px;">컨테이너 최대 너비: 1400px (대시보드는 전체 너비 사용)</li>
+      </ul>
+
+      <h3>접근성 (Accessibility)</h3>
+      <ul style="margin-left: 20px; margin-top: 12px;">
+        <li style="margin-bottom: 8px;">버튼은 hover, active, focus 상태 지원</li>
+        <li style="margin-bottom: 8px;">입력 필드는 label과 연결</li>
+        <li style="margin-bottom: 8px;">색상 대비는 WCAG AA 기준 준수</li>
+        <li style="margin-bottom: 8px;">키보드 네비게이션 지원</li>
+      </ul>
+    </div>
+
+    <div style="text-align: center; padding: 40px; color: #9ca3af;">
+      <p>© 2025 AICC 시나리오 빌더 프로젝트</p>
+      <p style="margin-top: 8px;">이 문서는 브라우저에서 직접 열어 시연 가능합니다.</p>
+    </div>
+  </div>
+
+  <script>
+    // 탭 인터랙션
+    document.querySelectorAll('.tab-button').forEach(button => {
+      button.addEventListener('click', function() {
+        document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
+
+    // 스크롤 스무스 처리
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+
+    // 미니 플로우 에디터 기능
+    let draggedMiniNode = null;
+    let dragOffsetMini = { x: 0, y: 0 };
+
+    function initMiniFlowEditor() {
+      const nodes = document.querySelectorAll('.mini-node');
+      
+      nodes.forEach(node => {
+        node.addEventListener('mousedown', (e) => {
+          if (e.target.classList.contains('mini-connector')) return;
+          
+          draggedMiniNode = node;
+          const rect = node.getBoundingClientRect();
+          const canvas = document.getElementById('miniCanvas');
+          const canvasRect = canvas.getBoundingClientRect();
+          
+          dragOffsetMini = {
+            x: e.clientX - rect.left,
+            y: e.clientY - rect.top
+          };
+          
+          node.classList.add('dragging');
+          
+          document.addEventListener('mousemove', handleMiniNodeMove);
+          document.addEventListener('mouseup', handleMiniNodeUp);
+        });
+      });
+
+      // 초기 연결선 그리기
+      drawMiniConnections();
+    }
+
+    function handleMiniNodeMove(e) {
+      if (!draggedMiniNode) return;
+      
+      const canvas = document.getElementById('miniCanvas');
+      const canvasRect = canvas.getBoundingClientRect();
+      
+      const x = e.clientX - canvasRect.left - dragOffsetMini.x;
+      const y = e.clientY - canvasRect.top - dragOffsetMini.y;
+      
+      draggedMiniNode.style.left = Math.max(0, Math.min(x, canvasRect.width - draggedMiniNode.offsetWidth)) + 'px';
+      draggedMiniNode.style.top = Math.max(0, Math.min(y, canvasRect.height - draggedMiniNode.offsetHeight)) + 'px';
+      
+      drawMiniConnections();
+    }
+
+    function handleMiniNodeUp() {
+      if (draggedMiniNode) {
+        draggedMiniNode.classList.remove('dragging');
+        draggedMiniNode = null;
+      }
+      
+      document.removeEventListener('mousemove', handleMiniNodeMove);
+      document.removeEventListener('mouseup', handleMiniNodeUp);
+    }
+
+    function drawMiniConnections() {
+      const svg = document.getElementById('miniSvg');
+      svg.innerHTML = '';
+      
+      const connections = [
+        { from: 'mini-node-1', to: 'mini-node-2' },
+        { from: 'mini-node-2', to: 'mini-node-3' }
+      ];
+      
+      const canvas = document.getElementById('miniCanvas');
+      const canvasRect = canvas.getBoundingClientRect();
+      
+      connections.forEach(conn => {
+        const fromNode = document.getElementById(conn.from);
+        const toNode = document.getElementById(conn.to);
+        
+        if (!fromNode || !toNode) return;
+        
+        const fromRect = fromNode.getBoundingClientRect();
+        const toRect = toNode.getBoundingClientRect();
+        
+        const x1 = fromRect.right - canvasRect.left;
+        const y1 = fromRect.top - canvasRect.top + fromRect.height / 2;
+        const x2 = toRect.left - canvasRect.left;
+        const y2 = toRect.top - canvasRect.top + toRect.height / 2;
+        
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        const d = `M ${x1} ${y1} C ${x1 + 80} ${y1}, ${x2 - 80} ${y2}, ${x2} ${y2}`;
+        path.setAttribute('d', d);
+        path.setAttribute('stroke', '#9ca3af');
+        path.setAttribute('stroke-width', '2');
+        path.setAttribute('fill', 'none');
+        
+        svg.appendChild(path);
+        
+        // 화살표
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', x2);
+        circle.setAttribute('cy', y2);
+        circle.setAttribute('r', '4');
+        circle.setAttribute('fill', '#9ca3af');
+        svg.appendChild(circle);
+      });
+    }
+
+    function openFullDemo() {
+      window.open('FLOW_EDITOR_DEMO.html', '_blank');
+    }
+
+    // 페이지 로드 시 초기화
+    window.addEventListener('load', () => {
+      initMiniFlowEditor();
+    });
+
+    // 윈도우 리사이즈 시 연결선 다시 그리기
+    window.addEventListener('resize', drawMiniConnections);
+  </script>
+</body>
+</html>
+

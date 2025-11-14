@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AICC 플로우 에디터 - 인터랙티브 데모</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+      background: #f9fafb;
+      overflow: hidden;
+    }
+
+    .app-container {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* 헤더 */
+    .header {
+      background: white;
+      padding: 16px 32px;
+      border-bottom: 2px solid #e5e7eb;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header h1 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #1f2937;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    /* 탭 네비게이션 */
+    .tab-nav {
+      background: white;
+      padding: 0 32px;
+      display: flex;
+      gap: 8px;
+      border-bottom: 2px solid #e5e7eb;
+    }
+
+    .tab-button {
+      padding: 12px 24px;
+      border: none;
+      background: none;
+      color: #6b7280;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s;
+      position: relative;
+      top: 2px;
+    }
+
+    .tab-button:hover {
+      color: #5a6bfa;
+    }
+
+    .tab-button.active {
+      color: #5a6bfa;
+      border-bottom-color: #5a6bfa;
+      font-weight: 600;
+    }
+
+    /* 버튼 */
+    .button {
+      padding: 10px 20px;
+      border: 1px solid #d5d9e3;
+      border-radius: 8px;
+      background: #fff;
+      color: #374151;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .button:hover {
+      background: #f3f4f6;
+    }
+
+    .button-primary {
+      background: #5a6bfa;
+      color: white;
+      border-color: #5a6bfa;
+    }
+
+    .button-primary:hover {
+      background: #4c5fd5;
+      box-shadow: 0 4px 12px rgba(90,107,250,0.3);
+    }
+
+    .button-secondary {
+      background: #fff;
+      color: #5a6bfa;
+      border-color: #5a6bfa;
+    }
+
+    .button-secondary:hover {
+      background: #eef1ff;
+    }
+
+    /* 탭 컨텐츠 */
+    .tab-content {
+      display: none;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .tab-content.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* 에디터 레이아웃 */
+    .editor-container {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    .editor-toolbar {
+      background: white;
+      padding: 16px 32px;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .toolbar-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1f2937;
+    }
+
+    .toolbar-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    /* 사이드바 */
+    .sidebar {
+      width: 300px;
+      background: white;
+      border-right: 2px solid #e5e7eb;
+      overflow-y: auto;
+      padding: 20px;
+    }
+
+    .sidebar-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: #1f2937;
+    }
+
+    .node-palette {
+      display: grid;
+      gap: 12px;
+    }
+
+    .node-palette-item {
+      padding: 12px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      cursor: grab;
+      transition: all 0.2s;
+      background: white;
+    }
+
+    .node-palette-item:hover {
+      border-color: #5a6bfa;
+      box-shadow: 0 4px 12px rgba(90,107,250,0.15);
+    }
+
+    .node-palette-item:active {
+      cursor: grabbing;
+    }
+
+    .node-palette-name {
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .node-palette-desc {
+      font-size: 12px;
+      color: #6b7280;
+    }
+
+    /* 캔버스 */
+    .canvas {
+      flex: 1;
+      position: relative;
+      overflow: auto;
+      background: #fafafa;
+      background-image: 
+        linear-gradient(#e5e7eb 1px, transparent 1px),
+        linear-gradient(90deg, #e5e7eb 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+
+    .canvas-content {
+      position: relative;
+      min-width: 2000px;
+      min-height: 1500px;
+    }
+
+    /* 노드 */
+    .flow-node {
+      position: absolute;
+      width: 280px;
+      background: white;
+      border: 3px solid #e5e7eb;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      cursor: grab;
+      transition: box-shadow 0.2s;
+      user-select: none;
+    }
+
+    .flow-node:hover {
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+
+    .flow-node.selected {
+      border-color: #5a6bfa;
+      box-shadow: 0 8px 20px rgba(90,107,250,0.3);
+    }
+
+    .flow-node.dragging {
+      cursor: grabbing;
+      opacity: 0.8;
+    }
+
+    .node-header {
+      padding: 12px 16px;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .node-type-badge {
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      color: white;
+    }
+
+    .node-type-start {
+      background: #10b981;
+    }
+
+    .node-type-ai {
+      background: #3b82f6;
+    }
+
+    .node-type-state {
+      background: #f59e0b;
+    }
+
+    .node-type-end {
+      background: #ef4444;
+    }
+
+    .node-type-workflow {
+      background: #10b981;
+    }
+
+    .node-label {
+      flex: 1;
+      font-weight: 600;
+      font-size: 14px;
+      color: #1f2937;
+    }
+
+    .node-delete {
+      background: none;
+      border: none;
+      color: #9ca3af;
+      font-size: 18px;
+      cursor: pointer;
+      padding: 4px;
+      line-height: 1;
+    }
+
+    .node-delete:hover {
+      color: #ef4444;
+    }
+
+    .node-body {
+      padding: 16px;
+      font-size: 13px;
+      color: #4b5563;
+    }
+
+    .node-config {
+      background: #f9fafb;
+      padding: 8px;
+      border-radius: 6px;
+      margin-top: 8px;
+      font-size: 11px;
+      color: #6b7280;
+    }
+
+    /* 연결점 */
+    .node-connector {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 2px solid white;
+      cursor: crosshair;
+      z-index: 10;
+    }
+
+    .node-connector.input {
+      left: -8px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #3b82f6;
+    }
+
+    .node-connector.output {
+      right: -8px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #10b981;
+    }
+
+    .node-connector:hover {
+      transform: translateY(-50%) scale(1.3);
+    }
+
+    /* SVG 연결선 */
+    #connectionSvg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .connection-line {
+      stroke-width: 2;
+      fill: none;
+    }
+
+    .connection-line.normal {
+      stroke: #9ca3af;
+    }
+
+    .connection-line.conditional {
+      stroke: #06b6d4;
+      stroke-dasharray: 5,5;
+    }
+
+    .connection-line.temp {
+      stroke: #5a6bfa;
+      stroke-width: 3;
+      stroke-dasharray: 5,5;
+    }
+
+    /* 상태 표시 */
+    .status-bar {
+      background: white;
+      border-top: 1px solid #e5e7eb;
+      padding: 12px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      color: #6b7280;
+    }
+
+    .status-info {
+      display: flex;
+      gap: 20px;
+    }
+
+    /* 안내 패널 */
+    .help-panel {
+      position: fixed;
+      bottom: 80px;
+      right: 32px;
+      background: white;
+      border: 2px solid #5a6bfa;
+      border-radius: 12px;
+      padding: 20px;
+      max-width: 320px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    }
+
+    .help-title {
+      font-weight: 600;
+      font-size: 14px;
+      color: #5a6bfa;
+      margin-bottom: 12px;
+    }
+
+    .help-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .help-list li {
+      font-size: 13px;
+      color: #6b7280;
+      margin-bottom: 8px;
+      padding-left: 20px;
+      position: relative;
+    }
+
+    .help-list li:before {
+      content: "•";
+      position: absolute;
+      left: 8px;
+      color: #5a6bfa;
+      font-weight: bold;
+    }
+
+    .close-help {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: none;
+      border: none;
+      color: #9ca3af;
+      font-size: 20px;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .close-help:hover {
+      color: #ef4444;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <!-- 헤더 -->
+    <div class="header">
+      <h1>🎨 AICC 플로우 에디터 - 인터랙티브 데모</h1>
+      <div class="header-actions">
+        <button class="button" onclick="resetCanvas()">초기화</button>
+        <button class="button button-secondary" onclick="toggleHelp()">도움말</button>
+        <button class="button button-primary" onclick="saveFlow()">저장</button>
+      </div>
+    </div>
+
+    <!-- 탭 네비게이션 -->
+    <div class="tab-nav">
+      <button class="tab-button active" onclick="switchTab('workflow')">
+        워크플로우 빌더
+      </button>
+      <button class="tab-button" onclick="switchTab('scenario')">
+        시나리오 플로우 에디터
+      </button>
+    </div>
+
+    <!-- 워크플로우 빌더 -->
+    <div id="workflowTab" class="tab-content active">
+      <div class="editor-toolbar">
+        <div class="toolbar-title">워크플로우 빌더 - 개별 블록 내부 노드 편집</div>
+        <div class="toolbar-actions">
+          <button class="button" onclick="addNode('ai-answer')">+ AI 답변</button>
+          <button class="button" onclick="addNode('state-change')">+ 상태 변경</button>
+        </div>
+      </div>
+      <div class="editor-container">
+        <div class="sidebar">
+          <div class="sidebar-title">노드 팔레트</div>
+          <div class="node-palette">
+            <div class="node-palette-item" draggable="true" data-node-type="start">
+              <div class="node-palette-name" style="color: #10b981;">🟢 시작</div>
+              <div class="node-palette-desc">워크플로우 시작점</div>
+            </div>
+            <div class="node-palette-item" draggable="true" data-node-type="ai-answer">
+              <div class="node-palette-name" style="color: #3b82f6;">💬 AI 답변</div>
+              <div class="node-palette-desc">고객에게 메시지 전달</div>
+            </div>
+            <div class="node-palette-item" draggable="true" data-node-type="state-change">
+              <div class="node-palette-name" style="color: #f59e0b;">⚡ 상태 변경</div>
+              <div class="node-palette-desc">대화 상태 변경</div>
+            </div>
+            <div class="node-palette-item" draggable="true" data-node-type="end">
+              <div class="node-palette-name" style="color: #ef4444;">🔴 종료</div>
+              <div class="node-palette-desc">워크플로우 종료점</div>
+            </div>
+          </div>
+        </div>
+        <div class="canvas" id="workflowCanvas">
+          <svg id="workflowSvg"></svg>
+          <div class="canvas-content" id="workflowContent">
+            <!-- 노드들이 여기에 추가됩니다 -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 시나리오 플로우 에디터 -->
+    <div id="scenarioTab" class="tab-content">
+      <div class="editor-toolbar">
+        <div class="toolbar-title">시나리오 플로우 에디터 - 워크플로우 조합</div>
+        <div class="toolbar-actions">
+          <button class="button" onclick="addScenarioNode('workflow')">+ 워크플로우 추가</button>
+        </div>
+      </div>
+      <div class="editor-container">
+        <div class="sidebar">
+          <div class="sidebar-title">워크플로우 라이브러리</div>
+          <div class="node-palette">
+            <div class="node-palette-item" draggable="true" data-node-type="scenario-start">
+              <div class="node-palette-name" style="color: #10b981;">🎬 시나리오 시작</div>
+              <div class="node-palette-desc">초기 인사 워크플로우</div>
+            </div>
+            <div class="node-palette-item" draggable="true" data-node-type="scenario-workflow">
+              <div class="node-palette-name" style="color: #3b82f6;">📦 주문 조회</div>
+              <div class="node-palette-desc">이커머스 주문 조회</div>
+            </div>
+            <div class="node-palette-item" draggable="true" data-node-type="scenario-workflow">
+              <div class="node-palette-name" style="color: #3b82f6;">📦 반품 안내</div>
+              <div class="node-palette-desc">이커머스 반품 처리</div>
+            </div>
+            <div class="node-palette-item" draggable="true" data-node-type="scenario-workflow">
+              <div class="node-palette-name" style="color: #8b5cf6;">🔐 고객 인증</div>
+              <div class="node-palette-desc">본인 확인 절차</div>
+            </div>
+            <div class="node-palette-item" draggable="true" data-node-type="scenario-end">
+              <div class="node-palette-name" style="color: #ef4444;">🏁 시나리오 종료</div>
+              <div class="node-palette-desc">만족도 조사 및 종료</div>
+            </div>
+          </div>
+        </div>
+        <div class="canvas" id="scenarioCanvas">
+          <svg id="scenarioSvg"></svg>
+          <div class="canvas-content" id="scenarioContent">
+            <!-- 노드들이 여기에 추가됩니다 -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 상태 바 -->
+    <div class="status-bar">
+      <div class="status-info">
+        <span id="nodeCount">노드: 0개</span>
+        <span id="connectionCount">연결: 0개</span>
+        <span id="selectedNode">선택: 없음</span>
+      </div>
+      <div>
+        <span>드래그로 노드 이동 | 연결점 클릭으로 연결 | Delete 키로 삭제</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 도움말 패널 -->
+  <div class="help-panel" id="helpPanel" style="display: none;">
+    <button class="close-help" onclick="toggleHelp()">✕</button>
+    <div class="help-title">💡 사용 방법</div>
+    <ul class="help-list">
+      <li>왼쪽 팔레트에서 노드를 드래그하여 캔버스에 놓으세요</li>
+      <li>노드를 드래그하여 위치를 이동할 수 있습니다</li>
+      <li>노드의 연결점(동그라미)을 클릭하여 다른 노드와 연결하세요</li>
+      <li>노드를 클릭하면 선택되며, X 버튼으로 삭제할 수 있습니다</li>
+      <li>Delete 키를 눌러 선택된 노드를 삭제할 수 있습니다</li>
+      <li>탭을 전환하여 다른 에디터를 시험해보세요</li>
+    </ul>
+  </div>
+
+  <script>
+    // 전역 상태
+    let currentTab = 'workflow';
+    let nodes = {
+      workflow: [],
+      scenario: []
+    };
+    let connections = {
+      workflow: [],
+      scenario: []
+    };
+    let selectedNodeId = null;
+    let draggedNode = null;
+    let dragOffset = { x: 0, y: 0 };
+    let connectingFrom = null;
+    let tempConnection = null;
+    let nodeIdCounter = 0;
+
+    // 탭 전환
+    function switchTab(tabName) {
+      currentTab = tabName;
+      
+      // 탭 버튼 활성화
+      document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      event.target.classList.add('active');
+      
+      // 탭 컨텐츠 표시
+      document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+      });
+      document.getElementById(tabName + 'Tab').classList.add('active');
+      
+      updateStatus();
+      redrawConnections();
+    }
+
+    // 초기 노드 생성
+    function initializeNodes() {
+      // 워크플로우 빌더 초기 노드
+      addNodeToCanvas('workflow', {
+        type: 'start',
+        label: '시작',
+        x: 100,
+        y: 200
+      });
+      addNodeToCanvas('workflow', {
+        type: 'ai-answer',
+        label: 'AI 답변',
+        x: 400,
+        y: 200,
+        config: { prompt: '안녕하세요. 무엇을 도와드릴까요?' }
+      });
+      addNodeToCanvas('workflow', {
+        type: 'end',
+        label: '종료',
+        x: 700,
+        y: 200
+      });
+      
+      // 초기 연결
+      connections.workflow.push({ from: 'node-0', to: 'node-1' });
+      connections.workflow.push({ from: 'node-1', to: 'node-2' });
+      
+      // 시나리오 플로우 에디터 초기 노드
+      addNodeToCanvas('scenario', {
+        type: 'scenario-start',
+        label: 'ECS이커머스 반품 안내 상담사',
+        x: 100,
+        y: 200
+      });
+      addNodeToCanvas('scenario', {
+        type: 'scenario-workflow',
+        label: 'ECS이커머스 반품 안내 엔드 수정',
+        x: 400,
+        y: 100
+      });
+      addNodeToCanvas('scenario', {
+        type: 'scenario-workflow',
+        label: 'ECS이커머스 반품 → 메인 엔드 수정',
+        x: 700,
+        y: 300
+      });
+      addNodeToCanvas('scenario', {
+        type: 'scenario-end',
+        label: '메인 안내 그룹트 호출',
+        x: 1000,
+        y: 200
+      });
+      
+      // 초기 연결
+      connections.scenario.push({ from: 'node-3', to: 'node-4', label: '전환(loop)' });
+      connections.scenario.push({ from: 'node-3', to: 'node-5', label: '메인(main)' });
+      connections.scenario.push({ from: 'node-4', to: 'node-6' });
+      connections.scenario.push({ from: 'node-5', to: 'node-6' });
+      
+      redrawConnections();
+      updateStatus();
+    }
+
+    // 노드 추가
+    function addNode(type) {
+      const canvas = document.getElementById(currentTab + 'Content');
+      const rect = canvas.getBoundingClientRect();
+      
+      addNodeToCanvas(currentTab, {
+        type: type,
+        label: getNodeLabel(type),
+        x: 400 + Math.random() * 200,
+        y: 200 + Math.random() * 200
+      });
+    }
+
+    function addNodeToCanvas(tab, config) {
+      const nodeId = 'node-' + (nodeIdCounter++);
+      const node = {
+        id: nodeId,
+        type: config.type,
+        label: config.label,
+        x: config.x,
+        y: config.y,
+        config: config.config
+      };
+      
+      nodes[tab].push(node);
+      
+      const nodeElement = createNodeElement(node);
+      document.getElementById(tab + 'Content').appendChild(nodeElement);
+      
+      updateStatus();
+      redrawConnections();
+    }
+
+    // 노드 엘리먼트 생성
+    function createNodeElement(node) {
+      const div = document.createElement('div');
+      div.className = 'flow-node';
+      div.id = node.id;
+      div.style.left = node.x + 'px';
+      div.style.top = node.y + 'px';
+      
+      const typeClass = getNodeTypeClass(node.type);
+      const typeLabel = getNodeTypeLabel(node.type);
+      
+      div.innerHTML = `
+        <div class="node-header" style="background: ${getNodeHeaderBg(node.type)}">
+          <span class="node-type-badge ${typeClass}">${typeLabel}</span>
+          <span class="node-label">${node.label}</span>
+          <button class="node-delete" onclick="deleteNode('${node.id}')">✕</button>
+        </div>
+        <div class="node-body">
+          ${getNodeBody(node)}
+        </div>
+        <div class="node-connector input" data-node-id="${node.id}" data-type="input"></div>
+        <div class="node-connector output" data-node-id="${node.id}" data-type="output"></div>
+      `;
+      
+      // 이벤트 리스너
+      div.addEventListener('mousedown', handleNodeMouseDown);
+      div.addEventListener('click', (e) => {
+        e.stopPropagation();
+        selectNode(node.id);
+      });
+      
+      // 연결점 이벤트
+      const connectors = div.querySelectorAll('.node-connector');
+      connectors.forEach(connector => {
+        connector.addEventListener('mousedown', handleConnectorMouseDown);
+      });
+      
+      return div;
+    }
+
+    // 노드 정보 반환
+    function getNodeLabel(type) {
+      const labels = {
+        'start': '시작',
+        'ai-answer': 'AI 답변',
+        'state-change': '상태 변경',
+        'end': '종료',
+        'scenario-start': '시나리오 시작',
+        'scenario-workflow': '워크플로우',
+        'scenario-end': '시나리오 종료'
+      };
+      return labels[type] || type;
+    }
+
+    function getNodeTypeClass(type) {
+      if (type.includes('start')) return 'node-type-start';
+      if (type.includes('end')) return 'node-type-end';
+      if (type.includes('ai')) return 'node-type-ai';
+      if (type.includes('state')) return 'node-type-state';
+      if (type.includes('workflow')) return 'node-type-workflow';
+      return 'node-type-ai';
+    }
+
+    function getNodeTypeLabel(type) {
+      if (type.includes('start')) return 'START';
+      if (type.includes('end')) return 'END';
+      if (type === 'ai-answer') return 'AI 답변';
+      if (type === 'state-change') return '상태 변경';
+      if (type.includes('workflow')) return '상태 변경';
+      return 'NODE';
+    }
+
+    function getNodeHeaderBg(type) {
+      if (type.includes('start')) return '#10b98115';
+      if (type.includes('end')) return '#ef444415';
+      if (type.includes('ai')) return '#3b82f615';
+      if (type.includes('state')) return '#f59e0b15';
+      if (type.includes('workflow')) return '#10b98115';
+      return '#f9fafb';
+    }
+
+    function getNodeBody(node) {
+      if (node.config && node.config.prompt) {
+        return `
+          <div><strong>프롬프트:</strong></div>
+          <div class="node-config">${node.config.prompt}</div>
+        `;
+      }
+      if (node.type === 'state-change') {
+        return `<div><strong>상태:</strong> 대화 상태 변경</div>`;
+      }
+      if (node.type === 'end' || node.type === 'scenario-end') {
+        return `<div><strong>액션:</strong> 대화 종료</div>`;
+      }
+      return `<div style="color: #9ca3af;">노드 설정</div>`;
+    }
+
+    // 노드 드래그
+    function handleNodeMouseDown(e) {
+      if (e.target.classList.contains('node-connector')) return;
+      if (e.target.classList.contains('node-delete')) return;
+      
+      e.preventDefault();
+      const node = e.currentTarget;
+      const rect = node.getBoundingClientRect();
+      const canvas = node.parentElement;
+      const canvasRect = canvas.getBoundingClientRect();
+      
+      draggedNode = node;
+      dragOffset = {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top
+      };
+      
+      node.classList.add('dragging');
+      
+      document.addEventListener('mousemove', handleNodeMouseMove);
+      document.addEventListener('mouseup', handleNodeMouseUp);
+    }
+
+    function handleNodeMouseMove(e) {
+      if (!draggedNode) return;
+      
+      const canvas = draggedNode.parentElement;
+      const canvasRect = canvas.getBoundingClientRect();
+      
+      const x = e.clientX - canvasRect.left - dragOffset.x + canvas.scrollLeft;
+      const y = e.clientY - canvasRect.top - dragOffset.y + canvas.scrollTop;
+      
+      draggedNode.style.left = Math.max(0, x) + 'px';
+      draggedNode.style.top = Math.max(0, y) + 'px';
+      
+      // 노드 데이터 업데이트
+      const nodeId = draggedNode.id;
+      const node = nodes[currentTab].find(n => n.id === nodeId);
+      if (node) {
+        node.x = parseInt(draggedNode.style.left);
+        node.y = parseInt(draggedNode.style.top);
+      }
+      
+      redrawConnections();
+    }
+
+    function handleNodeMouseUp(e) {
+      if (draggedNode) {
+        draggedNode.classList.remove('dragging');
+        draggedNode = null;
+      }
+      
+      document.removeEventListener('mousemove', handleNodeMouseMove);
+      document.removeEventListener('mouseup', handleNodeMouseUp);
+    }
+
+    // 연결점 처리
+    function handleConnectorMouseDown(e) {
+      e.stopPropagation();
+      e.preventDefault();
+      
+      const connector = e.currentTarget;
+      const nodeId = connector.dataset.nodeId;
+      const type = connector.dataset.type;
+      
+      if (type === 'output') {
+        // 연결 시작
+        connectingFrom = nodeId;
+        
+        const canvas = document.getElementById(currentTab + 'Canvas');
+        canvas.addEventListener('mousemove', handleConnectorMouseMove);
+        canvas.addEventListener('mouseup', handleConnectorMouseUp);
+      } else if (type === 'input' && connectingFrom) {
+        // 연결 완료
+        const toNodeId = nodeId;
+        connections[currentTab].push({ from: connectingFrom, to: toNodeId });
+        connectingFrom = null;
+        tempConnection = null;
+        redrawConnections();
+        updateStatus();
+      }
+    }
+
+    function handleConnectorMouseMove(e) {
+      if (!connectingFrom) return;
+      
+      tempConnection = {
+        x: e.clientX,
+        y: e.clientY
+      };
+      
+      redrawConnections();
+    }
+
+    function handleConnectorMouseUp(e) {
+      connectingFrom = null;
+      tempConnection = null;
+      
+      const canvas = document.getElementById(currentTab + 'Canvas');
+      canvas.removeEventListener('mousemove', handleConnectorMouseMove);
+      canvas.removeEventListener('mouseup', handleConnectorMouseUp);
+      
+      redrawConnections();
+    }
+
+    // 연결선 그리기
+    function redrawConnections() {
+      const svg = document.getElementById(currentTab + 'Svg');
+      svg.innerHTML = '';
+      
+      const canvas = document.getElementById(currentTab + 'Canvas');
+      const canvasRect = canvas.getBoundingClientRect();
+      
+      svg.setAttribute('width', canvas.scrollWidth);
+      svg.setAttribute('height', canvas.scrollHeight);
+      
+      // 기존 연결선 그리기
+      connections[currentTab].forEach(conn => {
+        const fromNode = document.getElementById(conn.from);
+        const toNode = document.getElementById(conn.to);
+        
+        if (!fromNode || !toNode) return;
+        
+        const fromRect = fromNode.getBoundingClientRect();
+        const toRect = toNode.getBoundingClientRect();
+        
+        const x1 = fromRect.right - canvasRect.left + canvas.scrollLeft;
+        const y1 = fromRect.top - canvasRect.top + fromRect.height / 2 + canvas.scrollTop;
+        const x2 = toRect.left - canvasRect.left + canvas.scrollLeft;
+        const y2 = toRect.top - canvasRect.top + toRect.height / 2 + canvas.scrollTop;
+        
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        const d = `M ${x1} ${y1} C ${x1 + 100} ${y1}, ${x2 - 100} ${y2}, ${x2} ${y2}`;
+        path.setAttribute('d', d);
+        path.setAttribute('class', conn.label ? 'connection-line conditional' : 'connection-line normal');
+        
+        svg.appendChild(path);
+        
+        // 화살표
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', x2);
+        circle.setAttribute('cy', y2);
+        circle.setAttribute('r', 4);
+        circle.setAttribute('fill', conn.label ? '#06b6d4' : '#9ca3af');
+        svg.appendChild(circle);
+        
+        // 라벨
+        if (conn.label) {
+          const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          text.setAttribute('x', (x1 + x2) / 2);
+          text.setAttribute('y', (y1 + y2) / 2 - 10);
+          text.setAttribute('fill', '#6b7280');
+          text.setAttribute('font-size', '12');
+          text.setAttribute('font-weight', '600');
+          text.setAttribute('text-anchor', 'middle');
+          text.textContent = conn.label;
+          svg.appendChild(text);
+        }
+      });
+      
+      // 임시 연결선 그리기
+      if (connectingFrom && tempConnection) {
+        const fromNode = document.getElementById(connectingFrom);
+        if (fromNode) {
+          const fromRect = fromNode.getBoundingClientRect();
+          
+          const x1 = fromRect.right - canvasRect.left + canvas.scrollLeft;
+          const y1 = fromRect.top - canvasRect.top + fromRect.height / 2 + canvas.scrollTop;
+          const x2 = tempConnection.x - canvasRect.left + canvas.scrollLeft;
+          const y2 = tempConnection.y - canvasRect.top + canvas.scrollTop;
+          
+          const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          line.setAttribute('x1', x1);
+          line.setAttribute('y1', y1);
+          line.setAttribute('x2', x2);
+          line.setAttribute('y2', y2);
+          line.setAttribute('class', 'connection-line temp');
+          
+          svg.appendChild(line);
+        }
+      }
+    }
+
+    // 노드 선택
+    function selectNode(nodeId) {
+      selectedNodeId = nodeId;
+      
+      document.querySelectorAll('.flow-node').forEach(node => {
+        node.classList.remove('selected');
+      });
+      
+      const node = document.getElementById(nodeId);
+      if (node) {
+        node.classList.add('selected');
+      }
+      
+      updateStatus();
+    }
+
+    // 노드 삭제
+    function deleteNode(nodeId) {
+      // 노드 제거
+      const nodeIndex = nodes[currentTab].findIndex(n => n.id === nodeId);
+      if (nodeIndex > -1) {
+        nodes[currentTab].splice(nodeIndex, 1);
+      }
+      
+      // 연결 제거
+      connections[currentTab] = connections[currentTab].filter(
+        conn => conn.from !== nodeId && conn.to !== nodeId
+      );
+      
+      // DOM 제거
+      const nodeElement = document.getElementById(nodeId);
+      if (nodeElement) {
+        nodeElement.remove();
+      }
+      
+      if (selectedNodeId === nodeId) {
+        selectedNodeId = null;
+      }
+      
+      updateStatus();
+      redrawConnections();
+    }
+
+    // 상태 업데이트
+    function updateStatus() {
+      document.getElementById('nodeCount').textContent = 
+        `노드: ${nodes[currentTab].length}개`;
+      document.getElementById('connectionCount').textContent = 
+        `연결: ${connections[currentTab].length}개`;
+      
+      if (selectedNodeId) {
+        const node = nodes[currentTab].find(n => n.id === selectedNodeId);
+        document.getElementById('selectedNode').textContent = 
+          `선택: ${node ? node.label : '없음'}`;
+      } else {
+        document.getElementById('selectedNode').textContent = '선택: 없음';
+      }
+    }
+
+    // 캔버스 초기화
+    function resetCanvas() {
+      if (confirm('현재 탭의 모든 노드와 연결을 초기화하시겠습니까?')) {
+        nodes[currentTab] = [];
+        connections[currentTab] = [];
+        document.getElementById(currentTab + 'Content').innerHTML = '';
+        selectedNodeId = null;
+        updateStatus();
+        redrawConnections();
+      }
+    }
+
+    // 저장
+    function saveFlow() {
+      const data = {
+        tab: currentTab,
+        nodes: nodes[currentTab],
+        connections: connections[currentTab]
+      };
+      
+      console.log('Flow Data:', data);
+      alert('플로우가 저장되었습니다!\n(콘솔에서 데이터를 확인하세요)');
+    }
+
+    // 도움말 토글
+    function toggleHelp() {
+      const panel = document.getElementById('helpPanel');
+      panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    }
+
+    // 키보드 이벤트
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Delete' && selectedNodeId) {
+        deleteNode(selectedNodeId);
+      }
+      if (e.key === 'Escape') {
+        connectingFrom = null;
+        tempConnection = null;
+        redrawConnections();
+      }
+    });
+
+    // 캔버스 스크롤 시 연결선 다시 그리기
+    document.querySelectorAll('.canvas').forEach(canvas => {
+      canvas.addEventListener('scroll', () => {
+        if (canvas.id === currentTab + 'Canvas') {
+          redrawConnections();
+        }
+      });
+    });
+
+    // 윈도우 리사이즈 시 연결선 다시 그리기
+    window.addEventListener('resize', redrawConnections);
+
+    // 팔레트 아이템 드래그 시작
+    document.querySelectorAll('.node-palette-item').forEach(item => {
+      item.addEventListener('dragstart', (e) => {
+        e.dataTransfer.setData('nodeType', item.dataset.nodeType);
+      });
+    });
+
+    // 캔버스에 드롭
+    document.querySelectorAll('.canvas-content').forEach(content => {
+      content.addEventListener('dragover', (e) => {
+        e.preventDefault();
+      });
+      
+      content.addEventListener('drop', (e) => {
+        e.preventDefault();
+        const nodeType = e.dataTransfer.getData('nodeType');
+        
+        if (nodeType) {
+          const rect = content.getBoundingClientRect();
+          const canvas = content.parentElement;
+          const x = e.clientX - rect.left + canvas.scrollLeft;
+          const y = e.clientY - rect.top + canvas.scrollTop;
+          
+          addNodeToCanvas(currentTab, {
+            type: nodeType,
+            label: getNodeLabel(nodeType),
+            x: x - 140,
+            y: y - 50
+          });
+        }
+      });
+    });
+
+    // 초기화
+    window.addEventListener('load', () => {
+      initializeNodes();
+      setTimeout(() => {
+        document.getElementById('helpPanel').style.display = 'block';
+      }, 500);
+    });
+  </script>
+</body>
+</html>
+

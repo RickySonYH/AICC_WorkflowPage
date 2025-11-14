@@ -42,14 +42,14 @@ export function BuilderTab() {
           style={{ marginTop: '16px' }}
           onClick={() => openModal('scenario-create-mode', {})}
         >
-          + 새 시나리오 생성
+          + 새 에이전트 생성
         </button>
       </div>
 
-      {/* [advice from AI] 중앙 시나리오 리스트 */}
+      {/* [advice from AI] 중앙 에이전트 리스트 */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <h3 style={{ fontSize: '18px', fontWeight: 600 }}>시나리오 목록</h3>
+          <h3 style={{ fontSize: '18px', fontWeight: 600 }}>에이전트 목록</h3>
           <div style={{ display: 'flex', gap: '12px' }}>
             <select
               value={filterCategory}
@@ -85,13 +85,13 @@ export function BuilderTab() {
               className="button button-primary"
               onClick={() => openModal('scenario-create-mode', {})}
             >
-              + 새 시나리오
+              + 새 에이전트
             </button>
           </div>
         </div>
 
         <div style={{ marginBottom: '12px', color: '#6b7280', fontSize: '14px' }}>
-          {filteredScenarios.length}개의 시나리오
+          {filteredScenarios.length}개의 에이전트
         </div>
 
         <div

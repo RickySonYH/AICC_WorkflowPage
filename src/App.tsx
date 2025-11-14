@@ -14,9 +14,9 @@ import { ScenarioCreateModeSelector } from './components/ScenarioCreateModeSelec
 import { ScenarioFlowEditor } from './components/ScenarioFlowEditor'
 
 const TAB_ITEMS: Array<{ id: TabKey; label: string }> = [
-  { id: 'dashboard', label: '시나리오 대시보드' },
+  { id: 'dashboard', label: '대시보드' },
   { id: 'library', label: '워크플로우 라이브러리' },
-  { id: 'builder', label: '시나리오 구성' },
+  { id: 'builder', label: '에이전트 구성' },
 ]
 
 function App() {
@@ -24,7 +24,7 @@ function App() {
 
   return (
     <div className="page-container">
-      <h1 className="page-title">AICC 플랫폼 - 대화 시나리오</h1>
+      <h1 className="page-title">AICC 플랫폼 - 대화 에이전트</h1>
 
       {/* [advice from AI] 탭 네비게이션 */}
       <nav className="tab-nav">
